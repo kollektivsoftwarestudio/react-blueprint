@@ -1,13 +1,16 @@
 {
   "name": "react-archiecture",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "format": "biome format",
-    "lint": "biome lint"
+    "lint": "biome lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -17,7 +20,7 @@
     "clsx": "^2.1.0",
     "dayjs": "^1.11.10",
     "dompurify": "^3.0.6",
-    "jose": "^5.2.0",
+    "happy-dom": "^13.2.0",
     "marked": "^11.1.1",
     "nanoid": "^5.0.4",
     "react": "^18.2.0",
@@ -35,17 +38,27 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.4.1",
+    "@faker-js/faker": "^8.3.1",
+    "@happy-dom/global-registrator": "^13.1.4",
     "@mswjs/data": "^0.16.1",
     "@rsbuild/core": "^0.2.13",
     "@rsbuild/plugin-react": "^0.2.13",
     "@tailwindcss/forms": "^0.5.7",
+    "@testing-library/jest-dom": "^6.2.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/bun": "^1.0.2",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20.10.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitest/ui": "^1.2.1",
+    "jsdom": "^23.2.0",
     "msw": "^2.0.11",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "vite-tsconfig-paths": "^4.3.1",
+    "vitest": "^1.2.1"
   },
   "msw": {
     "workerDirectory": "public"

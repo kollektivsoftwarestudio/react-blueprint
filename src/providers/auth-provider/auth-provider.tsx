@@ -1,6 +1,10 @@
 import { loadUser, loginFn, logoutFn, registerFn } from "@/lib/authn";
 import { useMutationFn, useQueryFn } from "@/lib/react-query/react-query";
-import { AuthUser, LoginCredentialsDTO, RegisterCredentialsDTO } from "@/services/api-client";
+import {
+  AuthUser,
+  LoginCredentialsDTO,
+  RegisterCredentialsDTO,
+} from "@/services/api-client";
 import { UseMutateAsyncFunction, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useMemo } from "react";
 
@@ -8,15 +12,25 @@ const AuthContext = createContext<{
   user: AuthUser | undefined | null;
   isLoadingUser: boolean;
   isAuthenticating: boolean;
-  login: UseMutateAsyncFunction<AuthUser, unknown, LoginCredentialsDTO, unknown>;
+  login: UseMutateAsyncFunction<
+    AuthUser,
+    unknown,
+    LoginCredentialsDTO,
+    unknown
+  >;
   loginError?: string;
-  register: UseMutateAsyncFunction<AuthUser, unknown, RegisterCredentialsDTO, unknown>;
+  register: UseMutateAsyncFunction<
+    AuthUser,
+    unknown,
+    RegisterCredentialsDTO,
+    unknown
+  >;
   registerError?: string;
   reloadUser: () => void;
   logout: () => void;
 }>(
   // biome-ignore lint/style/noNonNullAssertion: Ignore for createContext
-  null!,
+  null!
 );
 
 export const useAuth = () => {
@@ -33,6 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     queryKey: ["users", "me"],
     queryFn: loadUser,
     staleTime: Infinity,
+    retry: false,
   });
 
   const loginMutation = useMutationFn({
@@ -56,14 +71,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const loginError = useMemo(() => {
     if (loginMutation.error) {
-      return (loginMutation.error as { message: string }).message ?? "Unknown Error";
+      return (
+        (loginMutation.error as { message: string }).message ?? "Unknown Error"
+      );
     }
     return undefined;
   }, [loginMutation.error]);
 
   const registerError = useMemo(() => {
     if (registerMutation.error) {
-      return (registerMutation.error as { message: string }).message ?? "Unknown Error";
+      return (
+        (registerMutation.error as { message: string }).message ??
+        "Unknown Error"
+      );
     }
     return undefined;
   }, [registerMutation.error]);
@@ -76,7 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         loginError,
         register: registerMutation.mutateAsync,
         registerError,
-        reloadUser: () => queryClient.refetchQueries({ queryKey: ["users", "me"] }),
+        reloadUser: () =>
+          queryClient.refetchQueries({ queryKey: ["users", "me"] }),
         user: data,
         isLoadingUser: isLoading,
         isAuthenticating: loginMutation.isPending || registerMutation.isPending,

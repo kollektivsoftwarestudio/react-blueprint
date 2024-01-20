@@ -1,23 +1,19 @@
-import { storage } from "@/services/storage";
 import {
   apiClient,
   UserResponse,
   LoginCredentialsDTO,
   RegisterCredentialsDTO,
 } from "@/services/api-client";
+import { clearCookie } from "../cookies";
 
 async function handleUserResponse(data: UserResponse) {
-  const { jwt, user } = data;
-  storage.setToken(jwt);
+  const { sessionToken, user } = data;
   return user;
 }
 
 export async function loadUser() {
-  if (storage.getToken()) {
-    const data = await apiClient.auth.getUser();
-    return data;
-  }
-  return null;
+  const data = await apiClient.auth.getUser();
+  return data;
 }
 
 export async function loginFn(data: LoginCredentialsDTO) {
@@ -33,6 +29,7 @@ export async function registerFn(data: RegisterCredentialsDTO) {
 }
 
 export async function logoutFn() {
-  storage.clearToken();
+  // Clear cookies
+  clearCookie("session");
   window.location.assign(window.location.origin as unknown as string);
 }

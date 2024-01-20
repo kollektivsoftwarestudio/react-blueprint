@@ -11,5 +11,9 @@ export const useGetDiscussion = ({ discussionId }: UseGetDiscussionOptions) => {
     queryFn: () => conversationsApiClient.getDiscussion(discussionId),
   });
 
-  return { discussion: query.data, isLoading: query.isLoading };
+  return {
+    discussion: query.data,
+    isLoading: query.isLoading,
+    error: query.error,
+  };
 };

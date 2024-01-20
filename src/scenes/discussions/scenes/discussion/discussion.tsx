@@ -12,7 +12,9 @@ type DiscussionProps = {
 };
 
 export const Discussion = ({ discussionId }: DiscussionProps) => {
-  const { discussion, isLoading } = useGetDiscussion({ discussionId });
+  const { discussion, isLoading, error } = useGetDiscussion({ discussionId });
+  console.log("error", error);
+  console.log("discussion", discussion);
 
   if (isLoading) {
     return (
@@ -30,7 +32,9 @@ export const Discussion = ({ discussionId }: DiscussionProps) => {
     <>
       <Head title={discussion?.title} />
       <ContentLayout title={discussion?.title}>
-        <span className="text-xs font-bold">{formatDate(discussion?.createdAt)}</span>
+        <span className="text-xs font-bold">
+          {formatDate(discussion?.createdAt)}
+        </span>
         <div className="mt-6 flex flex-col space-y-16">
           <div className="flex justify-end">
             <UpdateDiscussion discussionId={discussionId} />

@@ -1,5 +1,3 @@
-import { storage } from "../storage";
-
 const request = async <TResponse>(
   url: string,
   config?: RequestInit
@@ -9,7 +7,6 @@ const request = async <TResponse>(
     headers: {
       ...config?.headers,
       "Content-Type": "application/json",
-      Authorization: `Bearer ${storage.getToken()}`,
     },
   });
 

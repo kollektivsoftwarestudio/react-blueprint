@@ -15,9 +15,9 @@ type DiscussionBody = {
 };
 
 export const discussionsHandlers = [
-  http.get<never>(`${API_URL}/discussions`, async ({ request }) => {
+  http.get<never>(`${API_URL}/discussions`, async ({ cookies }) => {
     try {
-      const user = await requireAuth(request);
+      const user = await requireAuth(cookies);
       const result = db.discussion.findMany({
         where: {
           teamId: {
@@ -33,9 +33,10 @@ export const discussionsHandlers = [
 
   http.get<{ discussionId: string }>(
     `${API_URL}/discussions/:discussionId`,
-    async ({ request, params }) => {
+    async ({ cookies, params }) => {
       try {
-        const user = await requireAuth(request);
+        console.log("cookies", cookies);
+        const user = await requireAuth(cookies);
         const { discussionId } = params;
         const result = db.discussion.findFirst({
           where: {
@@ -56,9 +57,9 @@ export const discussionsHandlers = [
 
   http.post<never, DiscussionBody>(
     `${API_URL}/discussions`,
-    async ({ request }) => {
+    async ({ request, cookies }) => {
       try {
-        const user = await requireAuth(request);
+        const user = await requireAuth(cookies);
         const data = await request.json();
         requireAdmin(user);
         const result = db.discussion.create({
@@ -77,9 +78,9 @@ export const discussionsHandlers = [
 
   http.patch<{ discussionId: string }, DiscussionBody>(
     `${API_URL}/discussions/:discussionId`,
-    async ({ request, params }) => {
+    async ({ request, cookies, params }) => {
       try {
-        const user = await requireAuth(request);
+        const user = await requireAuth(cookies);
         const data = await request.json();
         const { discussionId } = params;
         requireAdmin(user);
@@ -104,9 +105,9 @@ export const discussionsHandlers = [
 
   http.delete<{ discussionId: string }>(
     `${API_URL}/discussions/:discussionId`,
-    async ({ request, params }) => {
+    async ({ request, cookies, params }) => {
       try {
-        const user = await requireAuth(request);
+        const user = await requireAuth(cookies);
         const { discussionId } = params;
         requireAdmin(user);
         const result = db.discussion.delete({

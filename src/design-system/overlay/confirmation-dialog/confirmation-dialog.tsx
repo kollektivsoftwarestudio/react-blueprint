@@ -1,7 +1,10 @@
 import { useDisclosure } from "@/design-system/hooks/use-disclosure";
 import { cloneElement, useEffect, useRef } from "react";
 import { Dialog, DialogTitle } from "../dialog";
-import { ExclamationCircleIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
+import {
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/20/solid";
 import { Button } from "@/design-system/forms/button";
 
 export type ConfirmationDialogProps = {
@@ -45,17 +48,26 @@ export const ConfirmationDialog = ({
           <div className="sm:flex sm:items-start">
             {icon === "danger" && (
               <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                <ExclamationCircleIcon className="h-6 w-6 text-red-600" aria-hidden="true" />
+                <ExclamationCircleIcon
+                  className="h-6 w-6 text-red-600"
+                  aria-hidden="true"
+                />
               </div>
             )}
 
             {icon === "info" && (
               <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                <InformationCircleIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                <InformationCircleIcon
+                  className="h-6 w-6 text-blue-600"
+                  aria-hidden="true"
+                />
               </div>
             )}
             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <DialogTitle as="h3" className="text-lg leading-6 font-medium text-gray-900">
+              <DialogTitle
+                as="h3"
+                className="text-lg leading-6 font-medium text-gray-900"
+              >
                 {title}
               </DialogTitle>
               {body && (

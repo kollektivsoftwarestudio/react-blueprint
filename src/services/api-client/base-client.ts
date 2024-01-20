@@ -1,12 +1,12 @@
-import { storage } from "../storage";
-
-const request = async <TResponse>(url: string, config?: RequestInit): Promise<TResponse> => {
+const request = async <TResponse>(
+  url: string,
+  config?: RequestInit
+): Promise<TResponse> => {
   const response = await fetch(url, {
     ...config,
     headers: {
       ...config?.headers,
       "Content-Type": "application/json",
-      Authorization: `Bearer ${storage.getToken()}`,
     },
   });
 

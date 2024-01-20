@@ -10,9 +10,9 @@ type CreateCommentBody = {
 };
 
 export const commentsHandlers = [
-  http.get<never>(`${API_URL}/comments`, async ({ request }) => {
+  http.get<never>(`${API_URL}/comments`, async ({ request, cookies }) => {
     try {
-      await requireAuth(request);
+      await requireAuth(cookies);
       const url = new URL(request.url);
       const discussionId = url.searchParams.get("discussionId") || "";
       const result = db.comment.findMany({
@@ -28,28 +28,31 @@ export const commentsHandlers = [
     }
   }),
 
-  http.post<never, CreateCommentBody>(`${API_URL}/comments`, async ({ request }) => {
-    try {
-      const user = await requireAuth(request);
-      const data = await request.json();
-      const result = db.comment.create({
-        authorId: user.id,
-        id: nanoid(),
-        createdAt: Date.now(),
-        ...data,
-      });
-      persistDb("comment");
-      return delayedResponse(HttpResponse.json(result));
-    } catch (error) {
-      return delayedResponse(errorResponse(error));
+  http.post<never, CreateCommentBody>(
+    `${API_URL}/comments`,
+    async ({ request, cookies }) => {
+      try {
+        const user = await requireAuth(cookies);
+        const data = await request.json();
+        const result = db.comment.create({
+          authorId: user.id,
+          id: nanoid(),
+          createdAt: Date.now(),
+          ...data,
+        });
+        persistDb("comment");
+        return delayedResponse(HttpResponse.json(result));
+      } catch (error) {
+        return delayedResponse(errorResponse(error));
+      }
     }
-  }),
+  ),
 
   http.delete<{ commentId: string }>(
     `${API_URL}/comments/:commentId`,
-    async ({ request, params }) => {
+    async ({ request, params, cookies }) => {
       try {
-        const user = await requireAuth(request);
+        const user = await requireAuth(cookies);
         const { commentId } = params;
         const result = db.comment.delete({
           where: {
@@ -68,6 +71,6 @@ export const commentsHandlers = [
       } catch (error) {
         return delayedResponse(errorResponse(error));
       }
-    },
+    }
   ),
 ];

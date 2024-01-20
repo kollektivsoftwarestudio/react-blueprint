@@ -1,12 +1,12 @@
 import { Notifications } from "@/components/notifications";
 import { Button } from "@/design-system/forms/button";
 import { LoadingIndicator } from "@/design-system/loading-indicator";
-import { queryClient } from "@/lib/react-query";
+import { queryClient as defaultQueryClient } from "@/lib/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "./auth-provider";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense } from "react";
 
 const ErrorFallback = () => {
@@ -25,9 +25,10 @@ const ErrorFallback = () => {
 
 type AppProviderProps = {
   children: React.ReactNode;
+  queryClient?: QueryClient;
 };
 
-export const AppProvider = ({ children }: AppProviderProps) => {
+export const AppProvider = ({ children, queryClient }: AppProviderProps) => {
   return (
     <Suspense
       fallback={
@@ -38,7 +39,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     >
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <HelmetProvider>
-          <QueryClientProvider client={queryClient}>
+          <QueryClientProvider client={queryClient ?? defaultQueryClient}>
             <Notifications />
             <AuthProvider>
               <Router>{children}</Router>

@@ -1,6 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { z } from "zod";
-import { Form, FormInputField } from "@/design-system/forms";
+import { Form } from "@/design-system/forms";
 import { Button } from "@/design-system/forms/button";
 import { useState } from "react";
 import { useTeams } from "./hooks/use-teams";
@@ -10,6 +10,7 @@ import { AuthCard } from "../components/auth-card";
 import { routes } from "@/routes/routes";
 import { Link } from "@/design-system/navigation/link";
 import { FormSelectField } from "@/design-system/forms/select-field/form-select-field";
+import { FormInputField } from "@/design-system/forms/input-field";
 
 const schema = z
   .object({
@@ -23,7 +24,7 @@ const schema = z
       .object({
         teamId: z.string().min(1, "Required"),
       })
-      .or(z.object({ teamName: z.string().min(1, "Required") })),
+      .or(z.object({ teamName: z.string().min(1, "Required") }))
   );
 
 type FormKeys = keyof z.infer<typeof schema>;
@@ -50,8 +51,16 @@ export const Register = ({ onSuccess }: RegisterProps) => {
         >
           <FormInputField<FormKeys> label="First Name" name="firstName" />
           <FormInputField<FormKeys> label="Last Name" name="lastName" />
-          <FormInputField<FormKeys> type="email" label="Email Address" name="email" />
-          <FormInputField<FormKeys> type="password" label="Password" name="password" />
+          <FormInputField<FormKeys>
+            type="email"
+            label="Email Address"
+            name="email"
+          />
+          <FormInputField<FormKeys>
+            type="password"
+            label="Password"
+            name="password"
+          />
 
           <Switch.Group>
             <div className="flex items-center">
@@ -85,7 +94,11 @@ export const Register = ({ onSuccess }: RegisterProps) => {
             <FormInputField type="text" label="Team Name" name="teamName" />
           )}
           <div>
-            <Button isLoading={isAuthenticating} type="submit" className="w-full">
+            <Button
+              isLoading={isAuthenticating}
+              type="submit"
+              className="w-full"
+            >
               Register
             </Button>
           </div>

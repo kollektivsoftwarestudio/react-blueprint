@@ -6,7 +6,7 @@ import {
   authenticate,
   delayedResponse,
   errorResponse,
-  hash,
+  hash_unsafe,
   requireAuth,
 } from "../utils";
 
@@ -76,7 +76,7 @@ export const authHandlers = [
           id: nanoid(),
           createdAt: Date.now(),
           role,
-          password: hash(userObject.password),
+          password: hash_unsafe(userObject.password),
           teamId,
         });
 
@@ -102,19 +102,21 @@ export const authHandlers = [
     try {
       const credentials = await request.json();
       const result = await authenticate(credentials);
-      return delayedResponse(
-        HttpResponse.json(result, {
-          status: 200,
-        })
-      );
+      return new HttpResponse(JSON.stringify(result), {
+        status: 200,
+        headers: {
+          "Set-Cookie": `session=${result.sessionToken}; Path=/;`,
+          "Content-Type": "text/json",
+        },
+      });
     } catch (error) {
       return delayedResponse(errorResponse(error));
     }
   }),
 
-  http.get<never>(`${API_URL}/auth/me`, async ({ request }) => {
+  http.get<never>(`${API_URL}/auth/me`, async ({ request, cookies }) => {
     try {
-      const user = await requireAuth(request);
+      const user = await requireAuth(cookies);
 
       return delayedResponse(
         HttpResponse.json(user, {

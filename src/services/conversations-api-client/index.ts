@@ -11,7 +11,7 @@ export const conversationsApiClient = {
     baseClient.post<Discussion>("/discussions", data),
   deleteDiscussion: (id: string) => baseClient.delete(`/discussions/${id}`),
   getDiscussions: () => baseClient.get<Discussion[]>("/discussions"),
-  getDiscussion: (id: string) =>
+  getDiscussion: (id: string) => 
     baseClient.get<Discussion>(`/discussions/${id}`),
   updateDiscussion: (id: string, data: Partial<Discussion>) =>
     baseClient.patch(`/discussions/${id}`, data),

@@ -1,7 +1,5 @@
-import * as jose from "jose";
-import { JWT_SECRET } from "@/config";
-import { DbEntity, db } from "./db";
-import { DefaultBodyType, HttpResponse, StrictRequest, delay } from "msw";
+import { HttpResponse, delay } from "msw";
+import { DbEntity, db, persistDb } from "./db";
 
 const isTesting = process.env.NODE_ENV === "test";
 
@@ -10,7 +8,7 @@ export const delayedResponse = async <T>(response: T): Promise<T> => {
   return response;
 };
 
-export const hash = (str: string) => {
+export const hash_unsafe = (str: string) => {
   let hash = 5381;
   let i = str.length;
 
@@ -20,14 +18,38 @@ export const hash = (str: string) => {
   return String(hash >>> 0);
 };
 
-export const sanitizeUser = <T extends Partial<{ password: string; iat: string }>>(
-  user: T,
+function generateSessionToken_unsafe() {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const tokenLength = 32;
+
+  let sessionToken = "";
+
+  for (let i = 0; i < tokenLength; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    sessionToken += characters.charAt(randomIndex);
+  }
+
+  return sessionToken;
+}
+
+export const sanitizeUser = <
+  T extends Partial<{ password: string; iat: string }>
+>(
+  user: T
 ): Omit<T, "password" | "iat"> => {
   const { password, iat, ...rest } = user;
   return rest;
 };
 
-export async function authenticate({ email, password }: { email: string; password: string }) {
+// Note: This is not a production ready authentication solution
+export async function authenticate({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
   const user = db.user.findFirst({
     where: {
       email: {
@@ -36,38 +58,45 @@ export async function authenticate({ email, password }: { email: string; passwor
     },
   });
 
-  if (user?.password === hash(password)) {
-    const sanitizedUser = sanitizeUser(user);
-    const encodedToken = await new jose.SignJWT({ "urn:example:claim": true })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setIssuer("urn:example:issuer")
-      .setAudience("urn:example:audience")
-      .setExpirationTime("2h")
-      .setSubject(user.id)
-      .sign(JWT_SECRET);
+  if (user?.password === hash_unsafe(password)) {
+    const sessionToken = generateSessionToken_unsafe();
+    db.session.create({
+      id: sessionToken,
+      userId: user.id,
+      createdAt: Date.now(),
+    });
 
-    return { user: sanitizedUser, jwt: encodedToken };
+    persistDb("session");
+
+    return { user: sanitizeUser(user), sessionToken };
   }
 
   const error = new Error("Invalid username or password");
   throw error;
 }
 
-export async function requireAuth(request: StrictRequest<DefaultBodyType>) {
-  const authToken = request.headers.get("authorization")?.split(" ")[1];
-  if (!authToken) {
-    throw new Error("No authorization token provided!");
+export async function requireAuth(cookies: Record<string, string>) {
+  const sessionToken = cookies.session;
+  if (!sessionToken) {
+    throw new Error("No session token provided!");
   }
-  const { payload } = await jose.jwtVerify(authToken, JWT_SECRET, {
-    issuer: "urn:example:issuer",
-    audience: "urn:example:audience",
+
+  const session = db.session.findFirst({
+    where: {
+      id: {
+        equals: sessionToken,
+      },
+    },
   });
+
+  if (!session) {
+    throw new Error("Invalid session token");
+  }
 
   const user = db.user.findFirst({
     where: {
       id: {
-        equals: payload.sub,
+        equals: session.userId,
       },
     },
   });
@@ -80,7 +109,7 @@ export async function requireAuth(request: StrictRequest<DefaultBodyType>) {
 }
 
 export function requireAdmin(
-  user: DbEntity<"user"> | ReturnType<typeof sanitizeUser<DbEntity<"user">>>,
+  user: DbEntity<"user"> | ReturnType<typeof sanitizeUser<DbEntity<"user">>>
 ) {
   if (user.role !== "ADMIN") {
     throw Error("Unauthorized");
@@ -92,6 +121,6 @@ export const errorResponse = (error: unknown, status = 400) => {
     { message: (error as Error)?.message || "Server Error" },
     {
       status,
-    },
+    }
   );
 };

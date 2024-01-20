@@ -6,7 +6,10 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off"
+      }
     },
     "ignore": ["node_modules"],
     "include": ["src/**/*.{js,jsx,ts,tsx}"]
